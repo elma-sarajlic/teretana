@@ -89,8 +89,18 @@ export default function ClientDashboard() {
 
       <main className={styles.main}>
         <section className={styles.welcome}>
-          <h1>Zdravo, {userProfile.name?.split(' ')[0]}! 👋</h1>
-          <p>Spremna za današnji izazov?</p>
+          <div className="flex justify-between items-center">
+            <div>
+              <h1>Zdravo, {userProfile.name?.split(' ')[0]}! 👋</h1>
+              <p>Vaš cilj: <span className="text-accent">{userProfile.goal || 'Budi dosljedna!'}</span></p>
+            </div>
+            <div className={styles.progressCircle}>
+              <div className={styles.circleText}>
+                <span>{userProfile.progressPercent || 0}%</span>
+                <small>Cilj</small>
+              </div>
+            </div>
+          </div>
         </section>
 
         <section className={styles.statsGrid}>
@@ -103,10 +113,33 @@ export default function ClientDashboard() {
             <ChevronRight size={16} className={styles.statArrow} />
           </div>
           <div className={styles.statCard}>
-            <div className={styles.statIcon}><CheckCircle size={20} /></div>
+            <div className={styles.statIcon}><Star size={20} /></div>
             <div className={styles.statContent}>
-              <span className={styles.statVal}>{workouts.filter(w => w.completed).length}</span>
-              <span className={styles.statLabel}>Završeni treninzi</span>
+              <span className={styles.statVal}>{userProfile.fitnessLevel || 'Početnik'}</span>
+              <span className={styles.statLabel}>Nivo forme</span>
+            </div>
+          </div>
+        </section>
+
+        <section className={styles.measuresSection}>
+          <div className="card">
+            <div className="flex justify-between items-center mb-2">
+              <h3>Moje Mjere</h3>
+              <button className="btn btn-ghost btn-sm" onClick={() => setShowProgressModal(true)}><Plus size={14} /></button>
+            </div>
+            <div className={styles.measuresList}>
+              <div className={styles.measureItem}>
+                <span>Struk</span>
+                <strong>{userProfile.measurements?.[userProfile.measurements.length-1]?.waist || '--'} cm</strong>
+              </div>
+              <div className={styles.measureItem}>
+                <span>Bokovi</span>
+                <strong>{userProfile.measurements?.[userProfile.measurements.length-1]?.hips || '--'} cm</strong>
+              </div>
+              <div className={styles.measureItem}>
+                <span>BMI</span>
+                <strong>{(userProfile.measurements?.[userProfile.measurements.length-1]?.weight / ((userProfile.measurements?.[userProfile.measurements.length-1]?.height/100)**2))?.toFixed(1) || '--'}</strong>
+              </div>
             </div>
           </div>
         </section>
