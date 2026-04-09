@@ -10,6 +10,12 @@ import ExerciseLibrary from './ExerciseLibrary'; // We can reuse or link
 import styles from './ClientDetails.module.css';
 import toast from 'react-hot-toast';
 
+const calculateBMI = (w, h) => {
+  if (!w || !h) return '--';
+  const bmi = (w / ((h / 100) * (h / 100))).toFixed(1);
+  return bmi;
+};
+
 export default function ClientDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -113,6 +119,7 @@ export default function ClientDetails() {
 
       <div className={styles.tabs}>
         <button className={activeTab === 'overview' ? styles.activeTab : ''} onClick={() => setActiveTab('overview')}>Pregled</button>
+        <button className={activeTab === 'karton' ? styles.activeTab : ''} onClick={() => setActiveTab('karton')}>Karton Klijentice</button>
         <button className={activeTab === 'history' ? styles.activeTab : ''} onClick={() => setActiveTab('history')}>Historija Treninga</button>
         <button className={activeTab === 'notes' ? styles.activeTab : ''} onClick={() => setActiveTab('notes')}>Napomene</button>
       </div>
@@ -121,18 +128,103 @@ export default function ClientDetails() {
         {activeTab === 'overview' && (
           <div className={styles.overviewGrid}>
             <div className="card">
-              <h3>Zadnji Trening</h3>
+              <div className="flex items-center gap-1 mb-2">
+                <History size={18} className="text-accent" />
+                <h3>Zadnji Trening</h3>
+              </div>
               {workouts.length > 0 ? (
                 <div className={styles.workoutItem}>
                   <div className={styles.workoutDate}>{workouts[0].createdAt.toDate().toLocaleDateString('hr')}</div>
                   <h4>{workouts[0].title}</h4>
-                  <p>{workouts[0].exercises?.length} vježbi</p>
+                  <p className="text-secondary">{workouts[0].exercises?.length} vježbi planirano</p>
+                  {workouts[0].completed && <div className="badge badge-green mt-1">Završeno</div>}
                 </div>
-              ) : <p className="text-secondary">Nema podataka.</p>}
+              ) : <p className="text-secondary">Još nema dodijeljenih treninga.</p>}
             </div>
+            
             <div className="card">
-              <h3>Napredak (Cilj)</h3>
-              <p className="text-secondary">Prikaz grafikona će biti dostupan uskoro.</p>
+              <div className="flex items-center gap-1 mb-2">
+                <Activity size={18} className="text-accent" />
+                <h3>Status Cilja</h3>
+              </div>
+              <div className={styles.goalStatus}>
+                <div className={styles.goalInfo}>
+                  <strong>Cilj:</strong> {client.goal || 'Nije postavljen'}
+                </div>
+                <div className={styles.progressContainer}>
+                  <div className={styles.progressLabel}>
+                    <span>Napredak</span>
+                    <span>{client.progressPercent || 0}%</span>
+                  </div>
+                  <div className={styles.progressBar}>
+                    <div className={styles.progressFill} style={{width: `${client.progressPercent || 0}%`}}></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'karton' && (
+          <div className={styles.kartonGrid}>
+            <div className="card">
+              <div className="flex justify-between items-center mb-3">
+                <h3>Lični Podaci</h3>
+                <button className="btn btn-ghost btn-sm"><Settings size={14} /></button>
+              </div>
+              <div className={styles.dataList}>
+                <div className={styles.dataItem}>
+                  <span>Dob / Godine</span>
+                  <strong>{client.age || '--'} god.</strong>
+                </div>
+                <div className={styles.dataItem}>
+                  <span>Nivo forme</span>
+                  <span className="badge badge-accent">{client.fitnessLevel || 'Nije određeno'}</span>
+                </div>
+                <div className={styles.dataItem}>
+                  <span>Zanimanje</span>
+                  <strong>{client.job || 'Nije uneseno'}</strong>
+                </div>
+                <div className={styles.dataItem}>
+                  <span>Broj telefona</span>
+                  <a href={`tel:${client.phone}`} className="text-accent"><strong>{client.phone || '--'}</strong></a>
+                </div>
+              </div>
+              <div className={styles.healthAlert}>
+                <label className="label">Povrede / Zdravstvene napomene</label>
+                <div className={styles.healthBox}>
+                  {client.injuries || 'Nema prijavljenih povreda.'}
+                </div>
+              </div>
+            </div>
+
+            <div className="card">
+              <h3>Detaljne Mjere</h3>
+              <div className={styles.measuresGrid}>
+                <div className={styles.measureBox}>
+                  <span>Struk</span>
+                  <strong>{lastMeasurement.waist || '--'} cm</strong>
+                </div>
+                <div className={styles.measureBox}>
+                  <span>Bokovi</span>
+                  <strong>{lastMeasurement.hips || '--'} cm</strong>
+                </div>
+                <div className={styles.measureBox}>
+                  <span>Grudi</span>
+                  <strong>{lastMeasurement.chest || '--'} cm</strong>
+                </div>
+                <div className={styles.measureBox}>
+                  <span>Bedro</span>
+                  <strong>{lastMeasurement.thigh || '--'} cm</strong>
+                </div>
+              </div>
+              <div className={styles.bmiInfo}>
+                <div className={styles.bmiValue}>
+                  <span>BMI</span>
+                  <strong>{calculateBMI(lastMeasurement.weight, lastMeasurement.height)}</strong>
+                </div>
+                <p className="text-secondary" style={{fontSize: '0.75rem'}}>Indeks tjelesne mase se računa automatski.</p>
+              </div>
             </div>
           </div>
         )}
