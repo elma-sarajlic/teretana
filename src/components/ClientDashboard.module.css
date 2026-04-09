@@ -51,11 +51,70 @@
 .welcome h1 { font-size: 2rem; margin-bottom: 4px; }
 .welcome p { color: var(--text2); }
 
+.progressCircle {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  border: 4px solid var(--bg3);
+  border-top-color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.circleText {
+  text-align: center;
+}
+
+.circleText span {
+  display: block;
+  font-weight: 800;
+  font-size: 0.9rem;
+}
+
+.circleText small {
+  display: block;
+  font-size: 0.6rem;
+  color: var(--text3);
+  text-transform: uppercase;
+}
+
 .statsGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
+  margin-bottom: 24px;
+}
+
+.measuresSection {
   margin-bottom: 32px;
+}
+
+.measuresList {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.measureItem {
+  text-align: center;
+  background: var(--bg3);
+  padding: 10px;
+  border-radius: var(--radius-sm);
+}
+
+.measureItem span {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--text3);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.measureItem strong {
+  font-size: 1rem;
 }
 
 .statCard {
