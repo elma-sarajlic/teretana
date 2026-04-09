@@ -6,11 +6,11 @@ import { useAuth } from './contexts/AuthContext';
 import Login from './components/Login';
 import TrainerLayout from './components/TrainerLayout';
 import ClientsList from './components/ClientsList';
-// We will create these soon
 import ExerciseLibrary from './components/ExerciseLibrary';
 import Calendar from './components/Calendar';
 import ClientDetails from './components/ClientDetails';
 import ClientDashboard from './components/ClientDashboard';
+import Workouts from './components/Workouts';
 
 const TrainerDashboard = () => (
   <div className="fade-in">
@@ -24,15 +24,6 @@ const TrainerDashboard = () => (
   </div>
 );
 
-const Workouts = () => (
-  <div className="fade-in">
-    <h1>Treninzi</h1>
-    <p className="text-secondary">Ovdje možete kreirati šablone treninga i dodjeljivati ih klijenticama.</p>
-    <div className="card" style={{marginTop:'24px', textAlign:'center', padding:'60px'}}>
-      <p>Modul za masovno upravljanje treninzima je u fazi razvoja.</p>
-    </div>
-  </div>
-);
 
 function ProtectedRoute({ children, role }) {
   const { user, userProfile, loading } = useAuth();
