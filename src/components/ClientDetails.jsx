@@ -4,7 +4,7 @@ import { doc, getDoc, updateDoc, collection, query, where, getDocs, addDoc, orde
 import { db } from '../firebase/config';
 import { 
   User, Calendar, Activity, ChevronLeft, Plus, 
-  Trash2, ExternalLink, Save, Weight, Ruler, History
+  Trash2, ExternalLink, Save, Weight, Ruler, History, Settings
 } from 'lucide-react';
 import ExerciseLibrary from './ExerciseLibrary'; // We can reuse or link
 import styles from './ClientDetails.module.css';
