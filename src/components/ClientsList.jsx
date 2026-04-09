@@ -13,7 +13,10 @@ export default function ClientsList() {
   const [clients, setClients] = useState([]);
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
-  const [form, setForm] = useState({ name: '', email: '', password: '' });
+  const [form, setForm] = useState({ 
+    name: '', email: '', password: '', 
+    age: '', goal: '', fitnessLevel: 'Početnik' 
+  });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -37,13 +40,16 @@ export default function ClientsList() {
         email: form.email,
         role: 'client',
         trainerId: userProfile.id,
+        age: form.age,
+        goal: form.goal,
+        fitnessLevel: form.fitnessLevel,
         createdAt: new Date(),
         measurements: [],
         notes: '',
       });
       toast.success(`Profil za ${form.name} kreiran!`);
       setShowModal(false);
-      setForm({ name: '', email: '', password: '' });
+      setForm({ name: '', email: '', password: '', age: '', goal: '', fitnessLevel: 'Početnik' });
       loadClients();
     } catch (err) {
       toast.error('Greška: ' + err.message);
@@ -95,12 +101,11 @@ export default function ClientsList() {
             <div className={styles.clientInfo}>
               <div className={styles.clientName}>{client.name}</div>
               <div className={styles.clientEmail}>{client.email}</div>
-              {client.measurements?.length > 0 && (
-                <div className={styles.clientMeta}>
-                  <span>Visina: {client.measurements[client.measurements.length-1]?.height || '—'} cm</span>
-                  <span>Težina: {client.measurements[client.measurements.length-1]?.weight || '—'} kg</span>
-                </div>
-              )}
+              <div className={styles.clientMeta}>
+                <span>{client.goal || 'Bez cilja'}</span>
+                <span>•</span>
+                <span>{client.fitnessLevel || 'Početnik'}</span>
+              </div>
             </div>
             <ChevronRight size={18} className={styles.arrow} />
           </div>
@@ -114,26 +119,44 @@ export default function ClientsList() {
 
       {showModal && (
         <div className={styles.modalOverlay} onClick={() => setShowModal(false)}>
-          <div className={styles.modal} onClick={e => e.stopPropagation()}>
+          <div className={`${styles.modal} ${styles.modalLarge}`} onClick={e => e.stopPropagation()}>
             <h2>Nova klijentica</h2>
-            <p className={styles.modalSub}>Kreiraće se nalog za prijavu.</p>
+            <p className={styles.modalSub}>Kreiraće se nalog i lični karton klijentice.</p>
             <form onSubmit={createClient}>
-              <div className="form-group">
-                <label className="label">Ime i prezime</label>
-                <input value={form.name} onChange={e => setForm({...form, name: e.target.value})} required placeholder="Ana Petrović" />
-              </div>
-              <div className="form-group">
-                <label className="label">Email adresa</label>
-                <input type="email" value={form.email} onChange={e => setForm({...form, email: e.target.value})} required placeholder="ana@email.com" />
-              </div>
-              <div className="form-group">
-                <label className="label">Lozinka (privremena)</label>
-                <input type="password" value={form.password} onChange={e => setForm({...form, password: e.target.value})} required placeholder="Min. 6 znakova" minLength={6} />
+              <div className={styles.formGrid}>
+                <div className="form-group">
+                  <label className="label">Ime i prezime</label>
+                  <input value={form.name} onChange={e => setForm({...form, name: e.target.value})} required placeholder="Ana Petrović" />
+                </div>
+                <div className="form-group">
+                  <label className="label">Email adresa</label>
+                  <input type="email" value={form.email} onChange={e => setForm({...form, email: e.target.value})} required placeholder="ana@email.com" />
+                </div>
+                <div className="form-group">
+                  <label className="label">Lozinka (privremena)</label>
+                  <input type="password" value={form.password} onChange={e => setForm({...form, password: e.target.value})} required placeholder="Min. 6 znakova" minLength={6} />
+                </div>
+                <div className="form-group">
+                  <label className="label">Godine</label>
+                  <input type="number" value={form.age} onChange={e => setForm({...form, age: e.target.value})} placeholder="30" />
+                </div>
+                <div className="form-group">
+                  <label className="label">Glavni cilj</label>
+                  <input value={form.goal} onChange={e => setForm({...form, goal: e.target.value})} placeholder="npr. Mršavljenje i tonus" />
+                </div>
+                <div className="form-group">
+                  <label className="label">Nivo forme</label>
+                  <select value={form.fitnessLevel} onChange={e => setForm({...form, fitnessLevel: e.target.value})}>
+                    <option>Početnik</option>
+                    <option>Srednji</option>
+                    <option>Napredni</option>
+                  </select>
+                </div>
               </div>
               <div className={styles.modalActions}>
                 <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>Odustani</button>
                 <button type="submit" className="btn btn-primary" disabled={loading}>
-                  {loading ? 'Kreira...' : 'Kreiraj profil'}
+                  {loading ? 'Kreira...' : 'Kreiraj profil i karton'}
                 </button>
               </div>
             </form>
