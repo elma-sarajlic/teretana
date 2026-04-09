@@ -26,11 +26,17 @@ export default function ClientDetails() {
   }, [id]);
 
   const loadClient = async () => {
-    const snap = await getDoc(doc(db, 'users', id));
-    if (snap.exists()) {
-      setClient({ id: snap.id, ...snap.data() });
+    try {
+      const snap = await getDoc(doc(db, 'users', id));
+      if (snap.exists()) {
+        setClient({ id: snap.id, ...snap.data() });
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error('Greška pri učitavanju klijentice.');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const loadWorkouts = async () => {
