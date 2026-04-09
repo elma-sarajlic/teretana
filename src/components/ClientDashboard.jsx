@@ -4,7 +4,7 @@ import { db, auth } from '../firebase/config';
 import { useAuth } from '../contexts/AuthContext';
 import { 
   Dumbbell, CheckCircle, Clock, TrendingUp, 
-  Camera, Settings, LogOut, ChevronRight, Star
+  Camera, Settings, LogOut, ChevronRight, Star, Plus
 } from 'lucide-react';
 import { signOut } from 'firebase/auth';
 import styles from './ClientDashboard.module.css';
