@@ -1,0 +1,140 @@
+.layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  background: var(--card);
+  border-right: 1.5px solid var(--border);
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebarInner {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 20px 12px;
+  position: sticky;
+  top: 0;
+  max-height: 100vh;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  margin-bottom: 24px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.4rem;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+}
+
+.logo {
+  background: var(--accent-glow);
+  border-radius: 8px;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  color: var(--accent);
+}
+
+.closeBtn { display: none; background: none; color: var(--text2); margin-left: auto; }
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  color: var(--text2);
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.15s;
+}
+.navItem:hover { background: var(--bg3); color: var(--text); }
+.navItem.active { background: var(--accent-glow); color: var(--accent); font-weight: 600; }
+.arrow { margin-left: auto; opacity: 0; transition: opacity 0.15s; }
+.navItem.active .arrow, .navItem:hover .arrow { opacity: 1; }
+
+.userSection {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border-top: 1.5px solid var(--border);
+  margin-top: 16px;
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+
+.userInfo { flex: 1; min-width: 0; }
+.userName { font-size: 0.88rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.userRole { font-size: 0.75rem; color: var(--text2); }
+
+.logoutBtn { background: none; color: var(--text3); padding: 6px; border-radius: 6px; }
+.logoutBtn:hover { color: #e03c3c; background: rgba(224,60,60,0.1); }
+
+.main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+
+.mobileHeader {
+  display: none;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  border-bottom: 1.5px solid var(--border);
+  background: var(--card);
+}
+
+.menuBtn { background: none; color: var(--text); padding: 4px; }
+.mobileBrand { font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; color: var(--accent); letter-spacing: 0.06em; }
+
+.content { padding: 32px; flex: 1; max-width: 1200px; }
+
+.overlay { display: none; }
+
+@media (max-width: 900px) {
+  .sidebar {
+    position: fixed;
+    left: -260px;
+    top: 0;
+    bottom: 0;
+    z-index: 100;
+    width: 240px;
+    transition: left 0.25s ease;
+  }
+  .sidebar.open { left: 0; }
+  .closeBtn { display: flex; }
+  .mobileHeader { display: flex; }
+  .overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 99;
+  }
+  .content { padding: 20px; }
+}
