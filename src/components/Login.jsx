@@ -1,14 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase/config';
+import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
 import { Dumbbell } from 'lucide-react';
 import styles from './Login.module.css';
 
 export default function Login() {
+  const { user, userProfile } = useAuth();
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (user && userProfile) {
+      if (userProfile.role === 'trainer') navigate('/trainer');
+      else navigate('/client');
+    }
+  }, [user, userProfile, navigate]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -18,7 +29,6 @@ export default function Login() {
       toast.success('Dobrodošli!');
     } catch (err) {
       toast.error('Pogrešan email ili lozinka.');
-    } finally {
       setLoading(false);
     }
   };
