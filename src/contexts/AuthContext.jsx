@@ -12,29 +12,29 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser) {
-        setUser(firebaseUser);
-        const snap = await getDoc(doc(db, 'users', firebaseUser.uid));
-        if (snap.exists()) {
-          setUserProfile({ id: firebaseUser.uid, ...snap.data() });
+      try {
+        if (firebaseUser) {
+          setUser(firebaseUser);
+          const snap = await getDoc(doc(db, 'users', firebaseUser.uid));
+          if (snap.exists()) {
+            setUserProfile({ id: firebaseUser.uid, ...snap.data() });
+          } else {
+            setUserProfile({ 
+              id: firebaseUser.uid, 
+              role: 'client', 
+              email: firebaseUser.email,
+              name: firebaseUser.displayName || 'Novi Korisnik' 
+            });
+          }
         } else {
-          // New user (unknown role, likely client)
-          const newProfile = {
-            name: firebaseUser.displayName || 'Novi Korisnik',
-            email: firebaseUser.email,
-            role: 'client', // Default role
-            createdAt: new Date(),
-            measurements: []
-          };
-          // We don't auto-save to Firestore here to prevent stray accounts,
-          // but we set the local state so the UI doesn't crash.
-          setUserProfile({ id: firebaseUser.uid, ...newProfile });
+          setUser(null);
+          setUserProfile(null);
         }
-      } else {
-        setUser(null);
-        setUserProfile(null);
+      } catch (err) {
+        console.error("Auth error:", err);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     });
     return unsub;
   }, []);
