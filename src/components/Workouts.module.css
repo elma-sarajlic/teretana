@@ -1,0 +1,122 @@
+.header {
+  margin-bottom: 24px;
+}
+
+.container {
+  display: grid;
+  grid-template-columns: 400px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 1100px) {
+  .container { grid-template-columns: 1fr; }
+}
+
+.planList {
+  background: var(--bg2);
+  border-radius: var(--radius-sm);
+  min-height: 150px;
+  border: 1.5px dashed var(--border);
+  padding: 12px;
+}
+
+.emptyPlan {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 120px;
+  color: var(--text3);
+  font-size: 0.85rem;
+}
+
+.planItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--bg3);
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+  border: 1px solid var(--border);
+}
+
+.planItemInfo strong {
+  display: block;
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+}
+
+.inputs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  color: var(--text2);
+}
+
+.inputs input {
+  width: 50px;
+  padding: 4px 8px;
+  text-align: center;
+}
+
+.removeBtn {
+  background: none;
+  border: none;
+  color: #e03c3c;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: 0.2s;
+}
+
+.removeBtn:hover {
+  background: rgba(224, 60, 60, 0.1);
+}
+
+.libraryGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.libCard {
+  position: relative;
+  height: 150px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.libCard img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.5;
+  transition: 0.3s;
+}
+
+.libCard:hover img {
+  opacity: 0.8;
+  transform: scale(1.05);
+}
+
+.libCardOver {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 12px;
+  background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.libCardOver strong {
+  font-size: 0.8rem;
+  color: #fff;
+}
