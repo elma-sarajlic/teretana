@@ -94,11 +94,25 @@
   gap: 3px;
 }
 
-.apptDot {
-  width: 6px;
-  height: 6px;
+.miniAvatar {
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
   background: var(--accent);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.5rem;
+  font-weight: 800;
+  overflow: hidden;
+  border: 1px solid var(--card);
+}
+
+.miniAvatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .plusMore {
@@ -138,6 +152,27 @@
   align-items: center;
 }
 
+.apptAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--bg2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: var(--accent);
+  overflow: hidden;
+  border: 2px solid var(--border);
+  flex-shrink: 0;
+}
+
+.apptAvatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .apptTime {
   font-size: 0.85rem;
   font-weight: 700;
@@ -146,6 +181,21 @@
   padding: 4px 8px;
   border-radius: 6px;
   white-space: nowrap;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 52px;
+  text-align: center;
+}
+
+.apptDuration {
+  font-size: 0.65rem;
+  font-weight: 500;
+  color: var(--text3);
+  display: flex;
+  align-items: center;
+  gap: 2px;
 }
 
 .apptInfo h4 {
@@ -166,6 +216,89 @@
   align-items: center;
   gap: 4px;
 }
+
+.note {
+  color: var(--text2);
+  font-style: italic;
+}
+
+.apptInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.apptActions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.apptCard:hover .apptActions {
+  opacity: 1;
+}
+
+.apptActionBtn {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  color: var(--text2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.apptActionBtn:hover {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
+.apptActionBtn.deleteBtn:hover {
+  background: var(--error, #ef4444);
+  border-color: var(--error, #ef4444);
+}
+
+.conflictWarning {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  margin-bottom: 16px;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.modalCloseBtn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  color: var(--text2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.modalCloseBtn:hover { background: var(--accent); color: white; }
 
 .empty {
   text-align: center;

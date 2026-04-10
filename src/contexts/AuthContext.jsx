@@ -26,7 +26,8 @@ export function AuthProvider({ children }) {
               name: firebaseUser.displayName || 'Novi Korisnik' 
             });
           }
-        } else {
+        } else if (!userProfile) {
+          // Only clear if we're not in a mock session
           setUser(null);
           setUserProfile(null);
         }
@@ -40,7 +41,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, userProfile, setUserProfile, loading }}>
+    <AuthContext.Provider value={{ user, setUser, userProfile, setUserProfile, loading }}>
       {!loading && children}
     </AuthContext.Provider>
   );

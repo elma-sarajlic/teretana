@@ -142,6 +142,20 @@
 .modal h2 { margin-bottom: 8px; }
 .modalSub { color: var(--text2); font-size: 0.85rem; margin-bottom: 24px; }
 
+.modalLarge {
+  max-width: 650px !important;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 600px) {
+  .formGrid { grid-template-columns: 1fr; }
+}
+
 .modalActions {
   display: flex;
   justify-content: flex-end;

@@ -39,45 +39,166 @@
 }
 
 .main {
+  padding: 16px;
   max-width: 600px;
   margin: 0 auto;
-  padding: 24px 20px;
 }
 
-.welcome {
-  margin-bottom: 32px;
+/* Elite Header */
+.eliteHeader {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 24px;
+  background-image: radial-gradient(circle at top right, rgba(240, 82, 42, 0.05), transparent);
 }
 
-.welcome h1 { font-size: 2rem; margin-bottom: 4px; }
-.welcome p { color: var(--text2); }
+.profileMain {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
 
-.progressCircle {
-  width: 70px;
-  height: 70px;
+.avatarWrapper {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  cursor: pointer;
+}
+
+.avatarOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
   border-radius: 50%;
-  border: 4px solid var(--bg3);
-  border-top-color: var(--accent);
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
+  color: white;
 }
 
-.circleText {
-  text-align: center;
-}
-
-.circleText span {
-  display: block;
+.avatar, .avatarInitials {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
   font-weight: 800;
-  font-size: 0.9rem;
+  background: var(--bg3);
+  box-shadow: 0 0 20px rgba(240, 82, 42, 0.2);
 }
 
-.circleText small {
-  display: block;
-  font-size: 0.6rem;
+.levelBadge {
+  position: absolute;
+  bottom: -5px;
+  right: -5px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 900;
+  padding: 4px 6px;
+  border-radius: 6px;
+  border: 2px solid var(--bg2);
+}
+
+.profileText { flex: 1; }
+
+.nameRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.nameRow h1 { font-size: 1.5rem; }
+
+.tierBadge {
+  background: rgba(240, 82, 42, 0.1);
+  color: var(--accent);
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  border: 1px solid var(--accent);
+}
+
+.statusText {
+  font-size: 0.85rem;
   color: var(--text3);
+  margin-bottom: 16px;
+}
+
+.xpContainer { margin-top: 12px; }
+
+.xpHeader {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text3);
+  margin-bottom: 6px;
   text-transform: uppercase;
+}
+
+.xpBar {
+  height: 6px;
+  background: var(--bg3);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.xpFill {
+  height: 100%;
+  background: linear-gradient(to right, var(--accent), #ff8c00);
+  border-radius: 10px;
+}
+
+/* Achievements */
+.achievementsSection {
+  margin-bottom: 24px;
+}
+
+.achievementsScroll {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  scrollbar-width: none;
+}
+
+.achievementsScroll::-webkit-scrollbar { display: none; }
+
+.badgeItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-width: 80px;
+}
+
+.badgeCircle {
+  width: 50px;
+  height: 50px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  transition: 0.3s;
+}
+
+.badgeItem span {
+  font-size: 0.65rem;
+  text-align: center;
+  color: var(--text3);
+  font-weight: 700;
 }
 
 .statsGrid {
@@ -96,6 +217,96 @@
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
   margin-top: 12px;
+}
+
+.habitSection {
+  margin-bottom: 24px;
+}
+
+.habitGrid {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.habitItem {
+  flex: 1;
+  background: var(--bg1);
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.habitItem span {
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.habitCircle {
+  width: 32px;
+  height: 32px;
+  background: var(--bg3);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+}
+
+.habitItem input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent);
+}
+
+.gallerySection {
+  margin-bottom: 32px;
+}
+
+.galleryGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.photoBox {
+  position: relative;
+  background: var(--card);
+  border: 1.5px dashed var(--border);
+  aspect-ratio: 1/1;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.galleryImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.photoLabel {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(0,0,0,0.6);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #fff;
+  z-index: 2;
+}
+
+.photoPlaceholder {
+  color: var(--text3);
 }
 
 .measureItem {

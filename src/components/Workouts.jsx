@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { collection, query, where, getDocs, addDoc, orderBy } from 'firebase/firestore';
+import { collection, query, where, getDocs, addDoc, orderBy, deleteDoc, doc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import { useAuth } from '../contexts/AuthContext';
 import { defaultExercises } from '../data/defaultExercises';
-import { Plus, Trash2, Send, Activity, User, BookOpen } from 'lucide-react';
+import { Plus, Trash2, Send, Activity, User, BookOpen, Save, Copy, ChevronDown, ChevronUp, X, Edit, Loader2 } from 'lucide-react';
 import styles from './Workouts.module.css';
 import toast from 'react-hot-toast';
 
@@ -11,7 +11,10 @@ export default function Workouts() {
   const { userProfile } = useAuth();
   const [clients, setClients] = useState([]);
   const [exercises, setExercises] = useState([]);
+  const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [savingTemplate, setSavingTemplate] = useState(false);
+  const [showTemplates, setShowTemplates] = useState(false);
   
   // Selection State
   const [selectedClientId, setSelectedClientId] = useState('');
@@ -19,8 +22,8 @@ export default function Workouts() {
   const [addedExercises, setAddedExercises] = useState([]);
 
   useEffect(() => {
-    loadData();
-  }, []);
+    if (userProfile?.id) loadData();
+  }, [userProfile]);
 
   const loadData = async () => {
     try {
@@ -29,12 +32,18 @@ export default function Workouts() {
       const snapClients = await getDocs(qClients);
       setClients(snapClients.docs.map(d => ({ id: d.id, ...d.data() })));
 
-      // Load exercises from DB or use defaults
+      // Load exercises
       const qEx = query(collection(db, 'exercises'), orderBy('name'));
       const snapEx = await getDocs(qEx);
       const dbEx = snapEx.docs.map(d => ({ id: d.id, ...d.data() }));
-      setExercises(dbEx.length > 0 ? dbEx : defaultExercises);
+      setExercises([...defaultExercises, ...dbEx]);
+
+      // Load templates
+      const qTpl = query(collection(db, 'workout_templates'), where('trainerId', '==', userProfile.id), orderBy('createdAt', 'desc'));
+      const snapTpl = await getDocs(qTpl);
+      setTemplates(snapTpl.docs.map(d => ({ id: d.id, ...d.data() })));
     } catch (err) {
+      console.error(err);
       setExercises(defaultExercises);
     } finally {
       setLoading(false);
@@ -42,7 +51,7 @@ export default function Workouts() {
   };
 
   const addExerciseToPlan = (ex) => {
-    setAddedExercises([...addedExercises, { ...ex, sets: 3, reps: 12, planId: Date.now() }]);
+    setAddedExercises([...addedExercises, { ...ex, sets: 3, reps: '12', planId: Date.now() + Math.random() }]);
     toast.success(`${ex.name} dodan u plan`);
   };
 
@@ -76,7 +85,6 @@ export default function Workouts() {
       await addDoc(collection(db, 'workouts'), workoutData);
       toast.success('Trening uspješno dodijeljen!');
       
-      // Reset
       setWorkoutTitle('');
       setAddedExercises([]);
       setSelectedClientId('');
@@ -85,17 +93,92 @@ export default function Workouts() {
     }
   };
 
-  if (loading) return <div className="skeleton" style={{height:'300px'}} />;
+  /* ── Template Logic ── */
+  const saveAsTemplate = async () => {
+    if (!workoutTitle.trim()) return toast.error('Unesite naslov treninga da biste ga spremili kao šablon');
+    if (addedExercises.length === 0) return toast.error('Dodajte vježbe u plan');
+    
+    setSavingTemplate(true);
+    try {
+      const templateData = {
+        trainerId: userProfile.id,
+        title: workoutTitle,
+        exercises: addedExercises.map(({ name, description, videoUrl, imageUrl, sets, reps }) => ({
+          name, description, videoUrl, imageUrl, sets, reps
+        })),
+        createdAt: new Date(),
+      };
+
+      await addDoc(collection(db, 'workout_templates'), templateData);
+      toast.success('Šablon spremljen!');
+      
+      // Update local templates
+      loadData();
+    } catch (err) {
+      toast.error('Greška pri spremanju šablona');
+    } finally {
+      setSavingTemplate(false);
+    }
+  };
+
+  const applyTemplate = (tpl) => {
+    setWorkoutTitle(tpl.title);
+    setAddedExercises(tpl.exercises.map(ex => ({ ...ex, planId: Date.now() + Math.random() })));
+    setShowTemplates(false);
+    toast.success(`Šablon "${tpl.title}" primijenjen!`);
+  };
+
+  const deleteTemplate = async (e, id) => {
+    e.stopPropagation();
+    if (!window.confirm('Jeste li sigurni da želite obrisati ovaj šablon?')) return;
+    try {
+      await deleteDoc(doc(db, 'workout_templates', id));
+      toast.success('Šablon obrisan');
+      setTemplates(templates.filter(t => t.id !== id));
+    } catch (err) {
+      toast.error('Greška pri brisanju');
+    }
+  };
+
+  if (loading) return <div className="skeleton" style={{height:'400px'}} />;
 
   return (
     <div className="fade-in">
       <div className={styles.header}>
-        <h1>KREATOR TRENINGA</h1>
-        <p className="text-secondary">Sastavite plan i pošaljite ga direktno klijenticama</p>
+        <div>
+          <h1>KREATOR TRENINGA</h1>
+          <p className="text-secondary">Sastavite plan ili koristite šablone za brži rad</p>
+        </div>
+        <button className="btn btn-secondary" onClick={() => setShowTemplates(!showTemplates)}>
+          <Copy size={18} /> {showTemplates ? 'Zatvori šablone' : 'Moji Šabloni'}
+        </button>
       </div>
 
+      {showTemplates && (
+        <div className={styles.templatesPanel + " fade-in"}>
+          <h3>Vaši spremljeni šabloni</h3>
+          {templates.length === 0 ? (
+            <p className="text-secondary mt-1">Još nemate spremljenih šablona.</p>
+          ) : (
+            <div className={styles.templateGrid}>
+              {templates.map(tpl => (
+                <div key={tpl.id} className={styles.templateCard} onClick={() => applyTemplate(tpl)}>
+                  <div className={styles.templateInfo}>
+                    <h4>{tpl.title}</h4>
+                    <span>{tpl.exercises?.length || 0} vježbi</span>
+                  </div>
+                  <button className={styles.deleteTplBtn} onClick={(e) => deleteTemplate(e, tpl.id)}>
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
       <div className={styles.container}>
-        {/* Step 1: Client & Title */}
+        {/* Step 1: Config */}
         <div className={styles.configArea}>
           <div className="card">
             <h3>1. Osnovne informacije</h3>
@@ -112,11 +195,14 @@ export default function Workouts() {
             </div>
             <div className="form-group">
               <label className="label">Naslov treninga</label>
-              <input 
-                placeholder="npr. Full Body - Dan A" 
-                value={workoutTitle}
-                onChange={e => setWorkoutTitle(e.target.value)}
-              />
+              <div className="flex gap-1">
+                <input 
+                  placeholder="npr. Full Body - Dan A" 
+                  value={workoutTitle}
+                  onChange={e => setWorkoutTitle(e.target.value)}
+                  style={{flex: 1}}
+                />
+              </div>
             </div>
           </div>
 
@@ -130,7 +216,7 @@ export default function Workouts() {
               {addedExercises.length === 0 && (
                 <div className={styles.emptyPlan}>
                   <BookOpen size={24} />
-                  <p>Dodajte vježbe iz biblioteke desno</p>
+                  <p>Dodajte vježbe iz biblioteke desno ili učitajte šablon</p>
                 </div>
               )}
               {addedExercises.map((ex) => (
@@ -144,7 +230,7 @@ export default function Workouts() {
                         onChange={e => updateExDetails(ex.planId, 'sets', e.target.value)}
                         title="Serije"
                       />
-                      <span>serije</span>
+                      <span>serija ×</span>
                       <input 
                         type="text" 
                         value={ex.reps} 
@@ -161,30 +247,37 @@ export default function Workouts() {
               ))}
             </div>
 
-            <button 
-              className="btn btn-primary mt-2" 
-              style={{width: '100%', justifyContent: 'center'}}
-              onClick={saveWorkout}
-              disabled={addedExercises.length === 0}
-            >
-              <Send size={16} /> Pošalji klijentici
-            </button>
+            <div className={styles.actionButtons}>
+              <button 
+                className="btn btn-secondary" 
+                onClick={saveAsTemplate}
+                disabled={addedExercises.length === 0 || savingTemplate}
+              >
+                {savingTemplate ? <Loader2 size={16} className="spin" /> : <Save size={16} />}
+                Spremi kao šablon
+              </button>
+              <button 
+                className="btn btn-primary" 
+                onClick={saveWorkout}
+                disabled={addedExercises.length === 0}
+              >
+                <Send size={16} /> Pošalji klijentici
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Step 2: Library Selection */}
+        {/* Step 2: Library */}
         <div className={styles.libraryArea}>
           <div className="card">
             <h3>3. Biblioteka vježbi</h3>
             <div className={styles.libraryGrid}>
               {exercises.map(ex => (
-                <div key={ex.id} className={styles.libCard}>
+                <div key={ex.id} className={styles.libCard} onClick={() => addExerciseToPlan(ex)}>
                   <img src={ex.imageUrl} alt={ex.name} />
                   <div className={styles.libCardOver}>
                     <strong>{ex.name}</strong>
-                    <button className="btn btn-primary btn-sm" onClick={() => addExerciseToPlan(ex)}>
-                      <Plus size={14} /> Dodaj
-                    </button>
+                    <div className={styles.addIcon}><Plus size={16} /></div>
                   </div>
                 </div>
               ))}

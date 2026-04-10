@@ -3,22 +3,24 @@ import { NavLink, useNavigate, Outlet } from 'react-router-dom';
 import { signOut } from 'firebase/auth';
 import { auth } from '../firebase/config';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
 import {
-  LayoutDashboard, Users, Calendar, Dumbbell, Library,
-  LogOut, Menu, X, ChevronRight
+  Users, Calendar, Dumbbell, Library,
+  LogOut, Menu, X, ChevronRight, CreditCard, Sun, Moon
 } from 'lucide-react';
 import styles from './TrainerLayout.module.css';
 
 const navItems = [
-  { to: '/trainer', icon: LayoutDashboard, label: 'Dashboard' },
-  { to: '/trainer/clients', icon: Users, label: 'Klijentice' },
-  { to: '/trainer/calendar', icon: Calendar, label: 'Kalendar' },
-  { to: '/trainer/exercises', icon: Library, label: 'Biblioteka vježbi' },
-  { to: '/trainer/workouts', icon: Dumbbell, label: 'Treninzi' },
+  { to: '/trainer',           icon: Calendar,    label: 'Raspored',        end: true  },
+  { to: '/trainer/clients',   icon: Users,       label: 'Klijentice',      end: false },
+  { to: '/trainer/payments',  icon: CreditCard,  label: 'Naplate',         end: false },
+  { to: '/trainer/exercises', icon: Library,     label: 'Biblioteka vježbi', end: false },
+  { to: '/trainer/workouts',  icon: Dumbbell,    label: 'Treninzi',        end: false },
 ];
 
-export default function TrainerLayout({ children }) {
+export default function TrainerLayout() {
   const { userProfile } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
 
@@ -40,11 +42,11 @@ export default function TrainerLayout({ children }) {
           </div>
 
           <nav className={styles.nav}>
-            {navItems.map(({ to, icon: Icon, label }) => (
+            {navItems.map(({ to, icon: Icon, label, end }) => (
               <NavLink
                 key={to}
                 to={to}
-                end={to === '/trainer'}
+                end={end}
                 className={({ isActive }) =>
                   `${styles.navItem} ${isActive ? styles.active : ''}`
                 }
@@ -57,9 +59,29 @@ export default function TrainerLayout({ children }) {
             ))}
           </nav>
 
+          {/* ── Theme Toggle ── */}
+          <div className={styles.themeToggle}>
+            <span className={styles.themeLabel}>
+              {theme === 'dark' ? <Moon size={14} /> : <Sun size={14} />}
+              {theme === 'dark' ? 'Tamna tema' : 'Svijetla tema'}
+            </span>
+            <button
+              className={styles.toggleSwitch}
+              onClick={toggleTheme}
+              aria-label="Toggle theme"
+              id="theme-toggle-btn"
+            >
+              <div className={`${styles.toggleKnob} ${theme === 'light' ? styles.toggleKnobLight : ''}`} />
+            </button>
+          </div>
+
           <div className={styles.userSection}>
             <div className={styles.avatar}>
-              {userProfile?.name?.[0]?.toUpperCase() || 'T'}
+              {userProfile?.photoURL ? (
+                <img src={userProfile.photoURL} alt="Profile" className={styles.avatarImg} />
+              ) : (
+                userProfile?.name?.[0]?.toUpperCase() || 'T'
+              )}
             </div>
             <div className={styles.userInfo}>
               <div className={styles.userName}>{userProfile?.name || 'Trenerica'}</div>
@@ -80,6 +102,14 @@ export default function TrainerLayout({ children }) {
             <Menu size={22} />
           </button>
           <span className={styles.mobileBrand}>FitCoach</span>
+          {/* Mobile theme toggle */}
+          <button
+            className={styles.mobileThemeBtn}
+            onClick={toggleTheme}
+            aria-label="Toggle theme"
+          >
+            {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
         </div>
         <div className={styles.content}>
           <Outlet />

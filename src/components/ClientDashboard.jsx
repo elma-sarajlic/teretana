@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { collection, query, where, getDocs, updateDoc, doc, addDoc, orderBy, limit } from 'firebase/firestore';
-import { db, auth } from '../firebase/config';
+import { db, auth, storage } from '../firebase/config';
 import { useAuth } from '../contexts/AuthContext';
 import { 
   Dumbbell, CheckCircle, Clock, TrendingUp, 
-  Camera, Settings, LogOut, ChevronRight, Star, Plus
+  Camera, Settings, LogOut, ChevronRight, Star, Plus, Activity, Loader2
 } from 'lucide-react';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { signOut } from 'firebase/auth';
 import styles from './ClientDashboard.module.css';
 import toast from 'react-hot-toast';
@@ -17,6 +18,7 @@ export default function ClientDashboard() {
   const [selectedWorkout, setSelectedWorkout] = useState(null);
   const [showProgressModal, setShowProgressModal] = useState(false);
   const [progress, setProgress] = useState({ weight: '', height: '' });
+  const [uploading, setUploading] = useState(null); // 'profile', 'before', 'current'
 
   useEffect(() => {
     if (userProfile?.id) {
@@ -71,6 +73,50 @@ export default function ClientDashboard() {
     setShowProgressModal(false);
   };
 
+  const handleImageUpload = async (e, type) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error('Slika je prevelika. Maksimalno 2MB.');
+      return;
+    }
+
+    if (!userProfile?.id) {
+      toast.error('Gubitak sesije. Molimo osvježite stranicu.');
+      return;
+    }
+
+    setUploading(type);
+    console.log(`Starting upload for ${type}...`);
+    try {
+      // Create a unique path for the image
+      const filePath = `users/${userProfile.id}/${type}_${Date.now()}`;
+      const storageRef = ref(storage, filePath);
+      
+      console.log('Uploading bytes...');
+      const uploadResult = await uploadBytes(storageRef, file);
+      console.log('Upload successful, getting download URL...');
+      
+      const url = await getDownloadURL(uploadResult.ref);
+      console.log('Got URL:', url);
+
+      const field = type === 'profile' ? 'photoURL' : type === 'before' ? 'beforeURL' : 'currentURL';
+      
+      console.log(`Updating Firestore field "${field}"...`);
+      await updateDoc(doc(db, 'users', userProfile.id), { [field]: url });
+      
+      setUserProfile(prev => ({ ...prev, [field]: url }));
+      toast.success('Slika uspješno spremljena!');
+    } catch (err) {
+      console.error('Upload Error:', err);
+      toast.error(`Greška: ${err.message || 'Neuspjelo učitavanje slike'}`);
+    } finally {
+      console.log('Clearing upload state');
+      setUploading(null);
+    }
+  };
+
   const logout = () => signOut(auth);
 
   if (loading) return <div className="skeleton" style={{height:'100vh'}} />;
@@ -88,17 +134,76 @@ export default function ClientDashboard() {
       </header>
 
       <main className={styles.main}>
-        <section className={styles.welcome}>
-          <div className="flex justify-between items-center">
-            <div>
-              <h1>Zdravo, {userProfile.name?.split(' ')[0]}! 👋</h1>
-              <p>Vaš cilj: <span className="text-accent">{userProfile.goal || 'Budi dosljedna!'}</span></p>
-            </div>
-            <div className={styles.progressCircle}>
-              <div className={styles.circleText}>
-                <span>{userProfile.progressPercent || 0}%</span>
-                <small>Cilj</small>
+        {/* Elite Profile Header */}
+        <section className={styles.eliteHeader}>
+          <div className={styles.profileMain}>
+            <div className={styles.avatarWrapper} onClick={() => document.getElementById('profileUpload').click()}>
+              {userProfile.photoURL ? (
+                <img 
+                  src={userProfile.photoURL} 
+                  alt="Profile" 
+                  className={styles.avatar} 
+                  onError={(e) => {
+                    e.target.src = ''; // Clear source
+                    e.target.style.display = 'none'; // Hide image
+                    e.target.nextSibling.style.display = 'flex'; // Show initials
+                  }}
+                />
+              ) : null}
+              <div 
+                className={styles.avatarInitials} 
+                style={{ display: userProfile.photoURL ? 'none' : 'flex' }}
+              >
+                {userProfile.name?.[0]}
               </div>
+              {uploading === 'profile' && <div className={styles.avatarOverlay}><Loader2 className="spin" /></div>}
+              <div className={styles.levelBadge}>LVL 4</div>
+              <input 
+                type="file" 
+                id="profileUpload" 
+                hidden 
+                accept="image/*" 
+                onChange={(e) => handleImageUpload(e, 'profile')} 
+              />
+            </div>
+            <div className={styles.profileText}>
+              <div className={styles.nameRow}>
+                <h1>{userProfile.name}</h1>
+                <span className={styles.tierBadge}>PRO KLIJENT</span>
+              </div>
+              <p className={styles.statusText}>Aktivan program: <span className="text-accent">{userProfile.goal || 'Postizanje forme'}</span></p>
+              
+              <div className={styles.xpContainer}>
+                <div className={styles.xpHeader}>
+                  <span>Napredak do LVL 5</span>
+                  <span>75%</span>
+                </div>
+                <div className={styles.xpBar}>
+                  <div className={styles.xpFill} style={{width: '75%'}}></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Achievements Section */}
+        <section className={styles.achievementsSection}>
+          <div className={styles.achievementsScroll}>
+            <div className={styles.badgeItem}>
+              <div className={styles.badgeCircle}><Star size={20} fill="var(--accent)" /></div>
+              <span>Beginner</span>
+            </div>
+            <div className={styles.badgeItem}>
+              <div className={styles.badgeCircle}><TrendingUp size={20} /></div>
+              <span>7 Day Streak</span>
+            </div>
+            <div className={styles.badgeItem}>
+              <div className={styles.badgeCircle} style={{opacity: 0.3}}><Dumbbell size={20} /></div>
+              <span>Power Lifter</span>
+            </div>
+            <div className={styles.badgeItem}>
+              <div className={styles.badgeCircle} style={{opacity: 0.3}}><Activity size={20} /></div>
+              <span>Maratonac</span>
             </div>
           </div>
         </section>
@@ -121,6 +226,7 @@ export default function ClientDashboard() {
           </div>
         </section>
 
+
         <section className={styles.measuresSection}>
           <div className="card">
             <div className="flex justify-between items-center mb-2">
@@ -140,6 +246,59 @@ export default function ClientDashboard() {
                 <span>BMI</span>
                 <strong>{(userProfile.measurements?.[userProfile.measurements.length-1]?.weight / ((userProfile.measurements?.[userProfile.measurements.length-1]?.height/100)**2))?.toFixed(1) || '--'}</strong>
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Transformation Gallery */}
+        <section className={styles.gallerySection}>
+          <div className="flex justify-between items-center mb-2">
+            <h3>Moja Transformacija</h3>
+            <span className="text-secondary" style={{fontSize: '0.7rem'}}>Klikni na polje za dodavanje slike</span>
+          </div>
+          <div className={styles.galleryGrid}>
+            <div className={styles.photoBox} onClick={() => document.getElementById('beforeUpload').click()}>
+              <div className={styles.photoLabel}>PRIJE</div>
+              {userProfile.beforeURL ? (
+                <img 
+                  src={userProfile.beforeURL} 
+                  alt="Prije" 
+                  className={styles.galleryImg} 
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.nextSibling.style.display = 'flex';
+                  }}
+                />
+              ) : null}
+              <div 
+                className={styles.photoPlaceholder}
+                style={{ display: userProfile.beforeURL ? 'none' : 'flex' }}
+              >
+                {uploading === 'before' ? <Loader2 className="spin" /> : <Plus size={20} />}
+              </div>
+              <input type="file" id="beforeUpload" hidden accept="image/*" onChange={(e) => handleImageUpload(e, 'before')} />
+            </div>
+            
+            <div className={styles.photoBox} onClick={() => document.getElementById('currentUpload').click()}>
+              <div className={styles.photoLabel}>TRENUTNO</div>
+              {userProfile.currentURL ? (
+                <img 
+                  src={userProfile.currentURL} 
+                  alt="Trenutno" 
+                  className={styles.galleryImg} 
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.nextSibling.style.display = 'flex';
+                  }}
+                />
+              ) : null}
+              <div 
+                className={styles.photoPlaceholder}
+                style={{ display: userProfile.currentURL ? 'none' : 'flex' }}
+              >
+                {uploading === 'current' ? <Loader2 className="spin" /> : <Plus size={20} />}
+              </div>
+              <input type="file" id="currentUpload" hidden accept="image/*" onChange={(e) => handleImageUpload(e, 'current')} />
             </div>
           </div>
         </section>
@@ -188,7 +347,26 @@ export default function ClientDashboard() {
             <div className={styles.exerciseList}>
               {selectedWorkout.exercises?.map((ex, i) => (
                 <div key={i} className={styles.exCard}>
-                  {ex.videoUrl && <video src={ex.videoUrl} muted loop autoPlay playsInline className={styles.exVideo} />}
+                  {ex.videoUrl ? (
+                    <video 
+                      src={ex.videoUrl} 
+                      muted 
+                      loop 
+                      autoPlay 
+                      playsInline 
+                      className={styles.exVideo} 
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.nextSibling.style.display = 'block';
+                      }}
+                    />
+                  ) : null}
+                  <img 
+                    src={ex.imageUrl} 
+                    alt={ex.name} 
+                    className={styles.exVideo} 
+                    style={{ display: ex.videoUrl ? 'none' : 'block' }} 
+                  />
                   <div className={styles.exInfo}>
                     <h4>{i + 1}. {ex.name}</h4>
                     <p>{ex.description}</p>

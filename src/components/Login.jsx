@@ -8,7 +8,7 @@ import { Dumbbell } from 'lucide-react';
 import styles from './Login.module.css';
 
 export default function Login() {
-  const { user, userProfile } = useAuth();
+  const { user, setUser, userProfile, setUserProfile } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -24,6 +24,27 @@ export default function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
+
+    // --- MOCK LOGIN FOR TESTING ---
+    if ((email === 'admin' && password === 'admin') || (email === 'user' && password === 'user')) {
+      const isTrainer = email === 'admin';
+      const mockProfile = {
+        id: isTrainer ? 'mock-trainer-id' : 'mock-client-id',
+        name: isTrainer ? 'Admin Trenerica' : 'Test Klijentica',
+        email: email,
+        role: isTrainer ? 'trainer' : 'client',
+        goal: 'Testiranje',
+        fitnessLevel: 'Pro'
+      };
+      
+      setUser({ uid: mockProfile.id, email: email });
+      setUserProfile(mockProfile);
+      toast.success('Prijavljeni ste u DEMO modu!');
+      setLoading(false);
+      return;
+    }
+    // ----------------------------
+
     try {
       await signInWithEmailAndPassword(auth, email, password);
       toast.success('Dobrodošli!');
@@ -56,8 +77,8 @@ export default function Login() {
           <div className="form-group">
             <label className="label">Email adresa</label>
             <input
-              type="email"
-              placeholder="vas@email.com"
+              type="text"
+              placeholder="Email ili korisničko ime"
               value={email}
               onChange={e => setEmail(e.target.value)}
               required
