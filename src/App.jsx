@@ -87,17 +87,18 @@ function TrainerDashboard() {
     <div className="fade-in">
       <div style={{ marginBottom: '32px' }}>
         <h1>{greeting}, {userProfile?.name?.split(' ')[0]} 👋</h1>
-        <p className="text-secondary">Evo kako izgleda vaš dan danas.</p>
+        <p className="text-secondary">Evo vašeg pregleda za danas.</p>
       </div>
 
+      {/* Stats Row */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginBottom: '32px' }}>
         <div className="card" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <div style={{ width: 48, height: 48, borderRadius: '12px', background: 'var(--accent-glow)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent)', flexShrink: 0 }}>
             <Users size={22} />
           </div>
           <div>
-            <div style={{ fontSize: '2rem', fontWeight: 800, lineHeight: 1, color: 'var(--text)' }}>{stats?.clientCount || 0}</div>
-            <div style={{ fontSize: '0.8rem', color: 'var(--text3)', marginTop: '4px' }}>Aktivnih klijentica</div>
+            <div style={{ fontSize: '1.8rem', fontWeight: 800, lineHeight: 1, color: 'var(--text)' }}>{stats?.clientCount || 0}</div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text3)', marginTop: '4px' }}>Aktivnih klijentica</div>
           </div>
         </div>
 
@@ -106,8 +107,8 @@ function TrainerDashboard() {
             <Calendar size={22} />
           </div>
           <div>
-            <div style={{ fontSize: '2rem', fontWeight: 800, lineHeight: 1, color: 'var(--text)' }}>{stats?.todayCount || 0}</div>
-            <div style={{ fontSize: '0.8rem', color: 'var(--text3)', marginTop: '4px' }}>Treninga danas</div>
+            <div style={{ fontSize: '1.8rem', fontWeight: 800, lineHeight: 1, color: 'var(--text)' }}>{stats?.todayCount || 0}</div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text3)', marginTop: '4px' }}>Treninga danas</div>
           </div>
         </div>
 
@@ -116,61 +117,19 @@ function TrainerDashboard() {
             <CheckCircle size={22} />
           </div>
           <div>
-            <div style={{ fontSize: '2rem', fontWeight: 800, lineHeight: 1, color: 'var(--text)' }}>{stats?.completedThisWeek || 0}</div>
-            <div style={{ fontSize: '0.8rem', color: 'var(--text3)', marginTop: '4px' }}>Završenih ove sedmice</div>
+            <div style={{ fontSize: '1.8rem', fontWeight: 800, lineHeight: 1, color: 'var(--text)' }}>{stats?.completedThisWeek || 0}</div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text3)', marginTop: '4px' }}>Završenih vježbi</div>
           </div>
         </div>
       </div>
 
-      {/* Today's Schedule */}
-      <div className="card">
-        <div className="flex justify-between items-center mb-3">
-          <div className="flex items-center gap-1">
-            <Clock size={18} className="text-accent" />
-            <h3>Raspored za danas</h3>
-          </div>
-          <span className="badge badge-accent">{format(new Date(), 'dd.MM.yyyy.')}</span>
+      {/* Full Calendar View */}
+      <div style={{ marginTop: '24px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
+          <Calendar className="text-accent" size={24} />
+          <h2 style={{ fontSize: '1.5rem' }}>Vaš Kalendar</h2>
         </div>
-
-        {todayAppts.length === 0 ? (
-          <p className="text-secondary" style={{ textAlign: 'center', padding: '24px 0' }}>
-            Nema zakazanih treninga za danas. 🎉
-          </p>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            {todayAppts.map(appt => (
-              <div key={appt.id} style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '16px',
-                background: 'var(--bg3)',
-                borderRadius: '10px',
-                padding: '12px 16px',
-                border: '1px solid var(--border)'
-              }}>
-                <div style={{
-                  background: 'var(--accent-glow)',
-                  color: 'var(--accent)',
-                  fontWeight: 700,
-                  fontSize: '0.9rem',
-                  padding: '6px 12px',
-                  borderRadius: '8px',
-                  minWidth: '60px',
-                  textAlign: 'center'
-                }}>
-                  {appt.time}
-                </div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 600 }}>{appt.clientName}</div>
-                  {appt.note && <div style={{ fontSize: '0.8rem', color: 'var(--text3)' }}>{appt.note}</div>}
-                </div>
-                {appt.duration && (
-                  <div style={{ fontSize: '0.78rem', color: 'var(--text3)' }}>{appt.duration}</div>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
+        <CalendarPage />
       </div>
     </div>
   );

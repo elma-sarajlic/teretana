@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { doc, getDoc, updateDoc, collection, query, where, getDocs, addDoc, orderBy } from 'firebase/firestore';
 import { db, storage } from '../firebase/config';
@@ -35,6 +35,7 @@ export default function ClientDetails() {
   const [addedExercises, setAddedExercises] = useState([]);
   const [exSearch, setExSearch] = useState('');
   const [saving, setSaving] = useState(false);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     loadClient();
@@ -198,7 +199,7 @@ export default function ClientDetails() {
 
       <div className={styles.header}>
         <div className={styles.profileInfo}>
-          <div className={styles.avatarWrapper} onClick={() => document.getElementById('clientPhotoUpload').click()}>
+          <div className={styles.avatarWrapper} onClick={() => fileInputRef.current?.click()}>
             <div className={styles.avatar}>
               {client.photoURL ? (
                 <img src={client.photoURL} alt={client.name} onError={e => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
@@ -206,7 +207,13 @@ export default function ClientDetails() {
               <span style={{ display: client.photoURL ? 'none' : 'flex' }}>{client.name[0]}</span>
               {uploading && <div className={styles.avatarOverlay}><Loader2 className="spin" size={24} /></div>}
             </div>
-            <input type="file" id="clientPhotoUpload" hidden accept="image/*" onChange={handleImageUpload} />
+            <input 
+              type="file" 
+              ref={fileInputRef} 
+              hidden 
+              accept="image/*" 
+              onChange={handleImageUpload} 
+            />
           </div>
           <div>
             <h1>{client.name}</h1>
