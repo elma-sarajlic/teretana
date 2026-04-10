@@ -187,7 +187,7 @@ function ProtectedRoute({ children, role }) {
 
 export default function App() {
   return (
-    <Router>
+    <Router basename="/Teretana">
       <Routes>
         <Route path="/" element={<Login />} />
 
