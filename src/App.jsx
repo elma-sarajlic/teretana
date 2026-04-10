@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
 import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
 import { db } from './firebase/config';
@@ -187,7 +187,7 @@ function ProtectedRoute({ children, role }) {
 
 export default function App() {
   return (
-    <Router basename="/Teretana">
+    <Router>
       <Routes>
         <Route path="/" element={<Login />} />
 
